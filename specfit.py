@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from collections import OrderedDict
 
 #-------------------------------------------------------------------------------
 
@@ -9,7 +10,7 @@ class SpecfitParser:
     def __init__(self, filename):
         self.filename = filename
         self.n_components = 0
-        self.components = {}
+        self.components = OrderedDict()
 
         self.loadfile()
 
@@ -80,7 +81,7 @@ class SpecfitParser:
                                                            item.n_pars,
                                                            item.label))
                 for par in item.parameters:
-                    out_file.write('{:>33}{:>10}{:>10}{:>10}{:>10}{:>10}\n'.format(par.value,
+                    out_file.write('{:>33}{:>14}{:>14}{:>14}{:>10}{:>10}\n'.format(par.value,
                                                                               par.lower_lim,
                                                                               par.upper_lim,
                                                                               par.stepsize,
@@ -91,6 +92,28 @@ class SpecfitParser:
 
 class SpecfitComponent:
     """Parse and modify an individual compenent of a SpecFit paramter file"""
+
+    _par_names = {'linear': ['flux', 'slope'],
+                  'powerlaw': ['flux', 'index'],
+                  'bpl': ['flux', 'break', 'index_above', 'index_below'],
+                  'blackbody': ['flux', 'temperature'],
+                       'gaussian': ['flux', 'centroid', 'fwhm', 'skew'],
+                       'logarith': ['flux', 'centroid', 'fwhm', 'slew'],
+                       'labsorp': ['eq_width', 'centroid', 'fwhm'],
+                       'tauabs': ['depth', 'centroid', 'fwhm'],
+                       'eabsorp': ['depth', 'wavelength'],
+                       'recomb': ['flux', 'wavelength', 'temperature', 'fwhm'],
+                       'extcor': ['e(v-b)'],
+                       'usercont': ['norm', 'shift', 'redshift', 'key'],
+                       'userline': ['norm', 'shift', 'redshift', 'key'],
+                       'userabs': ['norm', 'shift', 'redshift', 'key'],
+                       'lorentz': ['flux', 'centroid', 'fwhm', 'alpha'],
+                       'dampabs': ['density', 'centroid', 'lifetime'],
+                       'logabs': ['depth', 'centroid', 'fwhm'],
+                       'ffree': ['norm', 'temperature'],
+                       'extdrude': ['e(b-v)', 'w0', 'gamma', 'c1', 'c2', 'c3', 'c4'],
+                       'disk': ['flux', 'beta', 'temperature'],
+                       'ccmext': ['e(b-v)', 'rv']}
 
     def __init__(self, lines):
         self.name, self.n_pars = lines[0].strip().split()[0:2]
@@ -109,7 +132,9 @@ class SpecfitComponent:
                                                          self.n_pars)
             raise ValueError(message)
 
-        self.parameters = [SpecfitParameter(line) for line in lines[1:]]
+        self.parameters = OrderedDict()
+        for key, line in zip(self._par_names[self.type], lines[1:]):
+            self.parameters[key] = SpecfitParameter(line)
 
     def __str__(self):
         output = "component: {} #{}\n".format(self.type, self.number)
