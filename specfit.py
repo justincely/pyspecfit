@@ -1,6 +1,8 @@
 import os
 from datetime import datetime
 
+#-------------------------------------------------------------------------------
+
 class SpecfitParser:
     """Parse and modify parameter files for the SpecFit task"""
 
@@ -15,6 +17,10 @@ class SpecfitParser:
         message = "Specfit database file {}\n".format(self.filename)
         message += '\n'.join(['-' + str(item) for item in self.components])
         return message
+
+    def __iter__(self):
+        for item in self.components.itervalues():
+            yield item
 
     def loadfile(self):
         data = open(self.filename).readlines()
@@ -109,6 +115,11 @@ class SpecfitComponent:
         output = "component: {} #{}\n".format(self.type, self.number)
         output += '\n'.join(['--' + str(item) for item in self.parameters])
         return output
+
+
+    def __iter__(self):
+        for item in self.parameters:
+            yield item
 
 #-------------------------------------------------------------------------------
 
