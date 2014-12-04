@@ -23,6 +23,8 @@ class SpecfitParser:
         for item in self.components.itervalues():
             yield item
 
+
+
     def loadfile(self):
         data = open(self.filename).readlines()
 
@@ -37,6 +39,8 @@ class SpecfitParser:
                 return
 
         raise ValueError('No components found')
+
+
 
     def read_components(self, data, start):
         components_read = 0
@@ -57,17 +61,23 @@ class SpecfitParser:
             raise ValueError("Not enough parameters supplied")
 
 
+
     def write(self, outname, clobber=False, mode='w'):
         if os.path.exists(outname) and not clobber:
             raise IOError("Will not overrite {} while clobber={}".format(outname,
                                                                          clobber))
+
+        out_path, out_filename = os.path.split(outname)
+        if not out_filename.startswith('sf'):
+            print "adding 'sf' to db name"
+            outname = os.path.join(out_path, 'sf'+out_filename)
 
         now = datetime.now()
 
         with open(outname, mode) as out_file:
             #-- Not sure if these are needed, keeping for now
             out_file.write('# {}\n'.format(now.ctime()))
-            out_file.write('being {}\n'.format(outname))
+            out_file.write('begin {}\n'.format(out_filename.lstrip('sf')))
             out_file.write('      task    specfit\n')
 
             #-- These are needed
@@ -80,7 +90,7 @@ class SpecfitParser:
                 out_file.write('{:>19}    {} # {}\n'.format(item.name,
                                                            item.n_pars,
                                                            item.label))
-                for par in item.parameters:
+                for par in item.parameters.itervalues():
                     out_file.write('{:>33}{:>14}{:>14}{:>14}{:>10}{:>10}\n'.format(par.value,
                                                                               par.lower_lim,
                                                                               par.upper_lim,
@@ -97,28 +107,28 @@ class SpecfitComponent:
                   'powerlaw': ['flux', 'index'],
                   'bpl': ['flux', 'break', 'index_above', 'index_below'],
                   'blackbody': ['flux', 'temperature'],
-                       'gaussian': ['flux', 'centroid', 'fwhm', 'skew'],
-                       'logarith': ['flux', 'centroid', 'fwhm', 'slew'],
-                       'labsorp': ['eq_width', 'centroid', 'fwhm'],
-                       'tauabs': ['depth', 'centroid', 'fwhm'],
-                       'eabsorp': ['depth', 'wavelength'],
-                       'recomb': ['flux', 'wavelength', 'temperature', 'fwhm'],
-                       'extcor': ['e(v-b)'],
-                       'usercont': ['norm', 'shift', 'redshift', 'key'],
-                       'userline': ['norm', 'shift', 'redshift', 'key'],
-                       'userabs': ['norm', 'shift', 'redshift', 'key'],
-                       'lorentz': ['flux', 'centroid', 'fwhm', 'alpha'],
-                       'dampabs': ['density', 'centroid', 'lifetime'],
-                       'logabs': ['depth', 'centroid', 'fwhm'],
-                       'ffree': ['norm', 'temperature'],
-                       'extdrude': ['e(b-v)', 'w0', 'gamma', 'c1', 'c2', 'c3', 'c4'],
-                       'disk': ['flux', 'beta', 'temperature'],
-                       'ccmext': ['e(b-v)', 'rv']}
+                  'gaussian': ['flux', 'centroid', 'fwhm', 'skew'],
+                  'logarith': ['flux', 'centroid', 'fwhm', 'slew'],
+                  'labsorp': ['eq_width', 'centroid', 'fwhm'],
+                  'tauabs': ['depth', 'centroid', 'fwhm'],
+                  'eabsorp': ['depth', 'wavelength'],
+                  'recomb': ['flux', 'wavelength', 'temperature', 'fwhm'],
+                  'extcor': ['e(v-b)'],
+                  'usercont': ['norm', 'shift', 'redshift', 'key'],
+                  'userline': ['norm', 'shift', 'redshift', 'key'],
+                  'userabs': ['norm', 'shift', 'redshift', 'key'],
+                  'lorentz': ['flux', 'centroid', 'fwhm', 'alpha'],
+                  'dampabs': ['density', 'centroid', 'lifetime'],
+                  'logabs': ['depth', 'centroid', 'fwhm'],
+                  'ffree': ['norm', 'temperature'],
+                  'extdrude': ['e(b-v)', 'w0', 'gamma', 'c1', 'c2', 'c3', 'c4'],
+                  'disk': ['flux', 'beta', 'temperature'],
+                  'ccmext': ['e(b-v)', 'rv']}
 
     def __init__(self, lines):
         self.name, self.n_pars = lines[0].strip().split()[0:2]
         self.n_pars = int(self.n_pars)
-        self.label = ''.join(lines[0].strip().split()[3:]) or ''
+        self.label = ' '.join(lines[0].strip().split()[3:]) or ''
 
         #-- Strip out numbers to get type of model fit
         #-- ALL numbers will be stripped, but they should all be at the end
@@ -136,10 +146,13 @@ class SpecfitComponent:
         for key, line in zip(self._par_names[self.type], lines[1:]):
             self.parameters[key] = SpecfitParameter(line)
 
+
+
     def __str__(self):
         output = "component: {} #{}\n".format(self.type, self.number)
         output += '\n'.join(['--' + str(item) for item in self.parameters])
         return output
+
 
 
     def __iter__(self):
@@ -163,6 +176,8 @@ class SpecfitParameter:
         self.stepsize = values[3]
         self.tolerance = values[4]
         self.linkage = values[5]
+
+
 
     def __str__(self):
         return "parameter: {} {} {} {} {} {}".format(self.value,
