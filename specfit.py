@@ -1,6 +1,8 @@
 import os
 from datetime import datetime
 from collections import OrderedDict
+import matplotlib.pyplot as plt
+import numpy as np
 
 #-------------------------------------------------------------------------------
 
@@ -23,10 +25,8 @@ class SpecfitParser:
         for item in self.components.itervalues():
             yield item
 
-
-
     def loadfile(self):
-        data = open(self.filename).readlines()
+        data = open(self.filename, 'r').readlines()
 
         if not len(data):
             raise ValueError('No lines in input datafile')
@@ -41,6 +41,38 @@ class SpecfitParser:
         raise ValueError('No components found')
 
 
+    def plot(self, wlim, ax=None):
+
+        if not ax:
+            fig = plt.figure()
+            ax = fig.add_subplot(1, 1, 1)
+        else:
+            fig = plt.gcf()
+
+        xdata = np.arange(wlim[0], wlim[1], .1)
+        ydata = np.zeros(xdata.shape)
+
+        for comp in self.components.itervalues():
+            print comp.name
+            if 'powerlaw' in comp.name:
+                index = comp.parameters['index'].value
+                flux = comp.parameters['flux'].value
+                ydata += flux * (xdata/1000.0)**(-1 * index)
+            if 'gaussian' in comp.name:
+                flux = comp.parameters['flux'].value
+                centroid = comp.parameters['centroid'].value
+                fwhm = comp.parameters['fwhm'].value
+                fwhm = velocity_to_wavelength(fwhm, centroid)
+                #skew = comp.parameters['skew'].value
+
+                ydata += gaussian(xdata, flux, fwhm, centroid)
+
+        ax.plot(xdata, ydata)
+
+        ax.set_ylabel('Flux')
+        ax.set_xlabel('Wavelength')
+
+        fig.savefig('plot.pdf')
 
     def read_components(self, data, start):
         components_read = 0
@@ -177,8 +209,6 @@ class SpecfitParameter:
         self.tolerance = values[4]
         self.linkage = values[5]
 
-
-
     def __str__(self):
         return "parameter: {} {} {} {} {} {}".format(self.value,
                                                      self.lower_lim,
@@ -186,5 +216,28 @@ class SpecfitParameter:
                                                      self.stepsize,
                                                      self.tolerance,
                                                      self.linkage)
+
+    def free(self):
+        self.linkage = 0
+
+    def fix(self):
+        self.linkage = -1
+
+
+#-------------------------------------------------------------------------------
+
+def gaussian(x, area, sigma, center):
+    sigma = sigma / (2 * np.sqrt(2 * np.log(2)))
+
+    print area, sigma, center
+
+    y = (area / (sigma * np.sqrt(2 * np.pi))) * np.exp((-(x-center)**2) / (2 * sigma**2))
+    return y
+
+#-------------------------------------------------------------------------------
+
+def velocity_to_wavelength(velocity, zeropoint):
+    LIGHTSPEED = 2.9979E5
+    return zeropoint * velocity/LIGHTSPEED
 
 #-------------------------------------------------------------------------------
