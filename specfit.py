@@ -94,7 +94,7 @@ class SpecfitParser:
 
 
 
-    def write(self, outname, clobber=False, mode='w'):
+    def write(self, outname, clobber=True, mode='w'):
         if os.path.exists(outname) and not clobber:
             raise IOError("Will not overrite {} while clobber={}".format(outname,
                                                                          clobber))
@@ -218,11 +218,12 @@ class SpecfitParameter:
                                                      self.linkage)
 
     def free(self):
-        self.linkage = 0
+        if self.linkage <= 0:
+            self.linkage = 0
 
     def fix(self):
-        self.linkage = -1
-
+        if self.linkage <= 0:
+            self.linkage = -1
 
 #-------------------------------------------------------------------------------
 
