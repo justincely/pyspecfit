@@ -123,7 +123,7 @@ class SpecfitParser:
                                                            item.n_pars,
                                                            item.label))
                 for par in item.parameters.itervalues():
-                    out_file.write('{:>33}{:>14}{:>14}{:>14}{:>10}{:>10}\n'.format(par.value,
+                    out_file.write('{:>33}{:>14}{:>14}{:>14}{:>10}{:>10d}\n'.format(par.value,
                                                                               par.lower_lim,
                                                                               par.upper_lim,
                                                                               par.stepsize,
@@ -207,7 +207,7 @@ class SpecfitParameter:
         self.upper_lim = values[2]
         self.stepsize = values[3]
         self.tolerance = values[4]
-        self.linkage = values[5]
+        self.linkage = int(values[5])
 
     def __str__(self):
         return "parameter: {} {} {} {} {} {}".format(self.value,
