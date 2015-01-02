@@ -25,6 +25,13 @@ class SpecfitParser:
         for item in self.components.itervalues():
             yield item
 
+    def __getitem__(self, i):
+        for num, item in enumerate(self.components.itervalues()):
+            if num == i:
+                return item
+
+        raise ValueError("No component {} found".format(i))
+
     def loadfile(self):
         data = open(self.filename, 'r').readlines()
 
@@ -73,6 +80,16 @@ class SpecfitParser:
         ax.set_xlabel('Wavelength')
 
         fig.savefig('plot.pdf')
+
+
+    def find_num(self, i):
+        """Get the numbered component"""
+        for item in self.components.itervalues():
+            if int(item.number) == i:
+                return item
+
+        raise ValueError("No component {} found".format(i))
+
 
     def read_components(self, data, start):
         components_read = 0
@@ -190,6 +207,13 @@ class SpecfitComponent:
     def __iter__(self):
         for item in self.parameters:
             yield item
+
+    def __getitem__(self, i):
+        for num, item in enumerate(self.parameters.itervalues()):
+            if num == i:
+                return item
+
+        raise ValueError("No parameter {} found".format(i))
 
 #-------------------------------------------------------------------------------
 
