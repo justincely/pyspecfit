@@ -81,6 +81,12 @@ class SpecfitParser:
 
         fig.savefig('plot.pdf')
 
+    def fixall(self):
+        """Fix all parameters"""
+        for comp in self:
+            for par in comp:
+                par.fix()
+
 
     def find_num(self, i):
         """Get the numbered component"""
@@ -202,10 +208,8 @@ class SpecfitComponent:
         output += '\n'.join(['--' + str(item) for item in self.parameters])
         return output
 
-
-
     def __iter__(self):
-        for item in self.parameters:
+        for item in self.parameters.itervalues():
             yield item
 
     def __getitem__(self, i):
@@ -248,6 +252,13 @@ class SpecfitParameter:
     def fix(self):
         if self.linkage <= 0:
             self.linkage = -1
+
+    @property
+    def hit_boundary(self):
+        if (self.value <= self.lower_lim) or (self.value >= self.upper_lim):
+            return True
+        else:
+            return False
 
 #-------------------------------------------------------------------------------
 
