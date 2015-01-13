@@ -48,31 +48,18 @@ class SpecfitParser:
         raise ValueError('No components found')
 
 
-    def plot(self, wlim, ax=None):
+    def plot(self, plotfile):
 
+        data = ascii.read(plotfile,
+                          header_start=None,
+                          data_start=2)
+
+        '''
         if not ax:
             fig = plt.figure()
             ax = fig.add_subplot(1, 1, 1)
         else:
             fig = plt.gcf()
-
-        xdata = np.arange(wlim[0], wlim[1], .1)
-        ydata = np.zeros(xdata.shape)
-
-        for comp in self.components.itervalues():
-            print comp.name
-            if 'powerlaw' in comp.name:
-                index = comp.parameters['index'].value
-                flux = comp.parameters['flux'].value
-                ydata += flux * (xdata/1000.0)**(-1 * index)
-            if 'gaussian' in comp.name:
-                flux = comp.parameters['flux'].value
-                centroid = comp.parameters['centroid'].value
-                fwhm = comp.parameters['fwhm'].value
-                fwhm = velocity_to_wavelength(fwhm, centroid)
-                #skew = comp.parameters['skew'].value
-
-                ydata += gaussian(xdata, flux, fwhm, centroid)
 
         ax.plot(xdata, ydata)
 
@@ -80,6 +67,7 @@ class SpecfitParser:
         ax.set_xlabel('Wavelength')
 
         fig.savefig('plot.pdf')
+        '''
 
     def fixall(self):
         """Fix all parameters"""
