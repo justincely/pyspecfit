@@ -14,14 +14,20 @@ class SpecfitParser:
 
         self.loadfile()
 
+        if len(self) != self.n_components:
+            raise ValueError("{} components found, file says {}".format(len(self),
+                                                                        self.n_components))
+
     def __str__(self):
         message = "Specfit database file {}\n".format(self.filename)
         message += '\n'.join(['-' + str(item) for item in self.components])
         return message
 
+
     def __iter__(self):
         for item in self.components.itervalues():
             yield item
+
 
     def __getitem__(self, i):
         for num, item in enumerate(self.components.itervalues()):
@@ -29,6 +35,11 @@ class SpecfitParser:
                 return item
 
         raise ValueError("No component {} found".format(i))
+
+
+    def __len__(self):
+        return len(self.components)
+
 
     def loadfile(self):
         data = open(self.filename, 'r').readlines()
@@ -175,7 +186,8 @@ class SpecfitComponent:
         for key, line in zip(self._par_names[self.type], lines[1:]):
             self.parameters[key] = SpecfitParameter(line)
 
-
+    def __len__(self):
+        return len(self.parameters)
 
     def __str__(self):
         output = "component: {} #{}\n".format(self.type, self.number)
@@ -235,4 +247,3 @@ class SpecfitParameter:
             return False
 
 #-------------------------------------------------------------------------------
-
