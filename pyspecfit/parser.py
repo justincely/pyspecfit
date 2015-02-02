@@ -1,8 +1,6 @@
 import os
 from datetime import datetime
 from collections import OrderedDict
-import matplotlib.pyplot as plt
-import numpy as np
 
 #-------------------------------------------------------------------------------
 
@@ -50,24 +48,12 @@ class SpecfitParser:
 
     def plot(self, plotfile):
 
-        data = ascii.read(plotfile,
-                          header_start=None,
-                          data_start=2)
+        #data = ascii.read(plotfile,
+        #                  header_start=None,
+        #                  data_start=2)
 
-        '''
-        if not ax:
-            fig = plt.figure()
-            ax = fig.add_subplot(1, 1, 1)
-        else:
-            fig = plt.gcf()
+        raise NotImplementedError("Nope, I can't do this yet")
 
-        ax.plot(xdata, ydata)
-
-        ax.set_ylabel('Flux')
-        ax.set_xlabel('Wavelength')
-
-        fig.savefig('plot.pdf')
-        '''
 
     def fixall(self):
         """Fix all parameters"""
@@ -250,18 +236,3 @@ class SpecfitParameter:
 
 #-------------------------------------------------------------------------------
 
-def gaussian(x, area, sigma, center):
-    sigma = sigma / (2 * np.sqrt(2 * np.log(2)))
-
-    print area, sigma, center
-
-    y = (area / (sigma * np.sqrt(2 * np.pi))) * np.exp((-(x-center)**2) / (2 * sigma**2))
-    return y
-
-#-------------------------------------------------------------------------------
-
-def velocity_to_wavelength(velocity, zeropoint):
-    LIGHTSPEED = 2.9979E5
-    return zeropoint * velocity/LIGHTSPEED
-
-#-------------------------------------------------------------------------------

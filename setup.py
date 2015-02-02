@@ -16,6 +16,5 @@ setup(
                    'Topic :: Scientific/Engineering :: Astronomy',
                    'Topic :: Scientific/Engineering :: Physics',
                    'Topic :: Software Development :: Libraries :: Python Modules'],
-    packages = ['pyspecfit'],
-    requires = ['numpy','scipy','astropy']
+    packages = ['pyspecfit']
     )

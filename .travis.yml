@@ -1,0 +1,19 @@
+language: python
+
+python:
+  - "2.7"
+
+virtualenv:
+    system_site_packages: true
+
+before_install:
+    - sudo apt-get update -q
+    - pip freeze
+
+# command to install dependencies
+install:
+    - "pip install -r requirements.txt"
+    - python setup.py build_ext --inplace
+
+# command to run tests
+script: nosetests
