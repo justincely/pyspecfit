@@ -48,7 +48,7 @@ def check_db_diff(filename1, filename2):
 
 #-------------------------------------------------------------------------------
 
-def reset_failed_parameters(db, previous_db, write=True, log=None):
+def reset_failed_parameters(db, previous_db, write=True, log=None, mode='w'):
     """Set any parameters that hit boundaries to their previous values
 
     Reset parameters will be kept fixed after being reset.
@@ -63,7 +63,8 @@ def reset_failed_parameters(db, previous_db, write=True, log=None):
         write-out changed db
     log : bool, str
         log file to write the modifications to
-
+    mode : str
+        used if a filename is supplied to log, specifies mode to write: a,w
 
     Returns
     -------
@@ -113,7 +114,7 @@ def reset_failed_parameters(db, previous_db, write=True, log=None):
                     cur_par.value = prev_par.value
 
         if log is not None:
-            with open(log, 'w') as savefile:
+            with open(log, mode) as savefile:
                 savefile.write(''.join(messages))
 
         current.write(db)
