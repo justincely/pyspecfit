@@ -43,6 +43,10 @@ def check_db_diff(filename1, filename2):
             if par1.tolerance != par2.tolerance:
                 n_diff += 1
                 print("{} Tolerance Diff: {} != {}".format(comp1.name, par1.tolerance, par2.tolerance))
+            if par1.linkage != par2.linkage:
+                n_diff += 1
+                print("{} Linkage Diff: {} != {}".format(comp1.name, par1.linkage, par2.linkage))
+
 
     return n_diff
 

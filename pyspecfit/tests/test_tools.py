@@ -55,5 +55,6 @@ class test_reset_failed_parameters():
         os.remove(out)
 
         assert os.path.exists(out + '_reset'), 'No logfile found'
+        os.remove(out + '_reset')
 
 #-------------------------------------------------------------------------------
