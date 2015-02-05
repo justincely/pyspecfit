@@ -38,4 +38,22 @@ class test_reset_failed_parameters():
 
         os.remove(out)
 
+
+    def test_logging(self):
+        """make sure the log gets written"""
+
+        db = SpecfitParser(COMPONENT_FILE)
+
+        db[0][0].value = db[0][0].upper_lim *2
+        db[1][1].value = .9 * db[1][1].upper_lim
+
+        out = COMPONENT_FILE + '_out'
+        db.write(out)
+
+        reset_failed_parameters(out, COMPONENT_FILE, log=out + '_reset')
+
+        os.remove(out)
+
+        assert os.path.exists(out + '_reset'), 'No logfile found'
+
 #-------------------------------------------------------------------------------
