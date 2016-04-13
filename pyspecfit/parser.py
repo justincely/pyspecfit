@@ -7,12 +7,12 @@ from collections import OrderedDict
 class SpecfitParser:
     """Parse and modify parameter files for the SpecFit task"""
 
-    def __init__(self, filename):
+    def __init__(self, filename, ext=-1):
         self.filename = filename
         self.n_components = 0
         self.components = OrderedDict()
 
-        self.loadfile()
+        self.loadfile(ext)
 
         if len(self) != self.n_components:
             raise ValueError("{} components found, file says {}".format(len(self),
@@ -41,13 +41,24 @@ class SpecfitParser:
         return len(self.components)
 
 
-    def loadfile(self):
+    def loadfile(self, ext):
         data = open(self.filename, 'r').readlines()
 
         if not len(data):
             raise ValueError('No lines in input datafile')
 
+        extensions = [i for i, line in enumerate(data) if line.startswith('begin')]
+        n_ext = len(extensions)
+
+        if ext > n_ext:
+            raise ValueError("Not enough extensions")
+
+        pos = extensions[ext]
+
         for i, line in enumerate(data):
+            if i < pos:
+                continue
+                
             line = line.strip()
             if line.startswith('components'):
                 self.n_components = int(line.split()[1])
